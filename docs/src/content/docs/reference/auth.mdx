@@ -217,7 +217,7 @@ To route Claude through a custom Anthropic-compatible endpoint (e.g., an interna
 
 **`CLAUDE_CODE_OAUTH_TOKEN`**:
 
-`CLAUDE_CODE_OAUTH_TOKEN` is not supported by GitHub Agentic Workflows. Provider-based OAuth authentication (such as billing through a Claude Teams or Claude Max subscription) is not supported. If you have set `CLAUDE_CODE_OAUTH_TOKEN` as a repository secret, it will be ignored — configure `ANTHROPIC_API_KEY` instead. For keyless authentication via Workload Identity Federation, see [Anthropic WIF](#anthropic-workload-identity-federation-wif) below.
+This fork supports `CLAUDE_CODE_OAUTH_TOKEN` when the workflow explicitly selects `engine: { id: claude, auth: { type: oauth } }`. It does not require an `ANTHROPIC_API_KEY` secret in that mode. Default API-key authentication and [Anthropic WIF](/gh-aw/reference/auth/#anthropic-workload-identity-federation-wif) remain unchanged. See the [Claude OAuth guide](/gh-aw/guides/claude-oauth/) for setup and security details.
 
 See also [AI Engines](/gh-aw/reference/engines/#built-in-ai-engines) for additional configuration needed when using Claude with GitHub MCP.
 
@@ -425,7 +425,7 @@ The PAT is missing the required permission. Use a fine-grained PAT with **Accoun
 
 **`401 Unauthorized` or `403 Forbidden` (Claude)**
 
-The `ANTHROPIC_API_KEY` secret is missing, expired, or invalid. Verify the key is active in the [Anthropic Console](https://console.anthropic.com/). Re-set the secret with `gh aw secrets set ANTHROPIC_API_KEY --value "<key>"`. Also check that you have not accidentally set `CLAUDE_CODE_OAUTH_TOKEN` instead — it is not supported.
+The configured credential is missing, expired, or invalid. Default Claude authentication requires `ANTHROPIC_API_KEY`. In this fork, explicit `engine.auth.type: oauth` requires `CLAUDE_CODE_OAUTH_TOKEN` instead. See the [Claude OAuth guide](/gh-aw/guides/claude-oauth/) for configuration and troubleshooting.
 
 **`401 Unauthorized` or `403 Forbidden` (Codex)**
 
