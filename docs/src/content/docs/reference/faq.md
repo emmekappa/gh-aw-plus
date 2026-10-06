@@ -485,7 +485,7 @@ See [Dependabot and gh-aw-actions](/gh-aw/reference/compilation-process/#dependa
 
 ### Can I use `CLAUDE_CODE_OAUTH_TOKEN` with the Claude engine?
 
-No. The Claude engine supports [`ANTHROPIC_API_KEY`](/gh-aw/reference/auth/#anthropic_api_key) or [Anthropic Workload Identity Federation](/gh-aw/reference/auth/#anthropic-workload-identity-federation-wif). Claude subscription OAuth tokens such as `CLAUDE_CODE_OAUTH_TOKEN` are not supported. See [Using Claude Code with GitHub Agentic Workflows](/gh-aw/engines/claude/).
+This fork supports `CLAUDE_CODE_OAUTH_TOKEN` when the workflow explicitly selects `engine: { id: claude, auth: { type: oauth } }`. It does not require an `ANTHROPIC_API_KEY` secret in that mode. Default API-key authentication and [Anthropic WIF](/gh-aw/reference/auth/#anthropic-workload-identity-federation-wif) remain unchanged. See the [Claude OAuth guide](/gh-aw/guides/claude-oauth/) for setup and security details.
 
 ### What hidden runtime dependencies does this have?
 

@@ -237,7 +237,7 @@ gh aw secrets set MY_SECRET --value-from-env MY_TOKEN          # From env var
 
 **Options:** `--repo/-r`, `--value`, `--value-from-env`, `--api-url`
 
-For Claude workflows, set `ANTHROPIC_API_KEY` or configure [Anthropic WIF](/gh-aw/reference/auth/#anthropic-workload-identity-federation-wif). `CLAUDE_CODE_OAUTH_TOKEN`, including a token from `claude login`, is not supported; it is silently ignored, so the run instead fails with an authentication error from the Claude CLI that never mentions the token, which is the signal to switch credentials.
+This fork supports `CLAUDE_CODE_OAUTH_TOKEN` when the workflow explicitly selects `engine: { id: claude, auth: { type: oauth } }`. It does not require an `ANTHROPIC_API_KEY` secret in that mode. Default API-key authentication and [Anthropic WIF](/gh-aw/reference/auth/#anthropic-workload-identity-federation-wif) remain unchanged. See the [Claude OAuth guide](/gh-aw/guides/claude-oauth/) for setup and security details.
 
 ##### `secrets bootstrap`
 

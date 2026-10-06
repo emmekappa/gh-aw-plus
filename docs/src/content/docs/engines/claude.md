@@ -19,7 +19,7 @@ To authenticate, either
 
 2. Use keyless [Anthropic Workload Identity Federation](/gh-aw/reference/auth/#anthropic-workload-identity-federation-wif).
 
-Claude subscription OAuth tokens such as `CLAUDE_CODE_OAUTH_TOKEN` are not supported.
+This fork supports `CLAUDE_CODE_OAUTH_TOKEN` when the workflow explicitly selects `engine: { id: claude, auth: { type: oauth } }`. It does not require an `ANTHROPIC_API_KEY` secret in that mode. Default API-key authentication and [Anthropic WIF](/gh-aw/reference/auth/#anthropic-workload-identity-federation-wif) remain unchanged. See the [Claude OAuth guide](/gh-aw/guides/claude-oauth/) for setup and security details.
 
 ## Example: scheduled repository report
 
