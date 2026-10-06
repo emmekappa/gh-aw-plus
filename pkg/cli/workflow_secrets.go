@@ -76,6 +76,15 @@ func getSecretRequirementsForWorkflow(workflowFile string) []SecretRequirement {
 	// Get engine-specific secrets only (no system secrets, no optional)
 	// System secrets will be added separately to avoid duplication
 	reqs := getSecretRequirementsForEngine(engine, false, false)
+	if engine == "claude" && engineConfig != nil && engineConfig.Auth != nil && engineConfig.Auth.Type == "oauth" {
+		reqs = []SecretRequirement{{
+			Name:           constants.ClaudeCodeOAuthToken,
+			WhenNeeded:     "Claude OAuth workflows",
+			Description:    "Claude Code OAuth token from claude setup-token",
+			IsEngineSecret: true,
+			EngineName:     engine,
+		}}
+	}
 
 	// For inline engine definitions with an AuthDefinition, also include auth secrets.
 	if engineConfig != nil && engineConfig.InlineProviderAuth != nil {

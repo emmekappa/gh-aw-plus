@@ -74,7 +74,7 @@ func (e *ClaudeEngine) GetRequiredSecretNames(workflowData *WorkflowData) []stri
 	if provider == LLMProviderAnthropic && isAnthropicWIF(workflowData) {
 		return collectCommonMCPSecrets(workflowData)
 	}
-	return append(llmProviderSecretNames(provider), collectCommonMCPSecrets(workflowData)...)
+	return append(e.claudeAuthSecretNames(workflowData), collectCommonMCPSecrets(workflowData)...)
 }
 
 // GetSupportedEnvVarKeys returns the engine.env variable names that the Claude engine
@@ -82,6 +82,7 @@ func (e *ClaudeEngine) GetRequiredSecretNames(workflowData *WorkflowData) []stri
 func (e *ClaudeEngine) GetSupportedEnvVarKeys() []string {
 	return []string{
 		constants.AnthropicAPIKey,
+		constants.ClaudeCodeOAuthToken,
 	}
 }
 
@@ -90,7 +91,7 @@ func (e *ClaudeEngine) GetSupportedEnvVarKeys() []string {
 func (e *ClaudeEngine) GetSecretValidationStep(workflowData *WorkflowData) GitHubActionStep {
 	provider := e.ResolveLLMProvider(workflowData)
 	return BuildEngineSecretValidationStep(workflowData, EngineSecretValidationConfig{
-		SecretNames: llmProviderSecretNames(provider),
+		SecretNames: e.claudeAuthSecretNames(workflowData),
 		EngineName:  "Claude Code",
 		DocsURL:     llmProviderDocsURL(provider),
 		Skip: func(workflowData *WorkflowData) bool {
@@ -423,7 +424,7 @@ func (e *ClaudeEngine) buildClaudeFullCommand(workflowData *WorkflowData, claude
 			PathSetup:      "mkdir -p " + constants.TmpGhAwDir + " && (umask 177 && touch " + claudeDebugLogFile + ") && touch " + AgentStepSummaryPath, // Runs BEFORE AWF on the host
 			// Exclude every env var whose step-env value is a secret so the agent
 			// cannot read raw token values via bash tools (env / printenv).
-			ExcludeEnvVarNames:   ComputeAWFExcludeEnvVarNames(workflowData, llmProviderSecretNames(e.ResolveLLMProvider(workflowData))),
+			ExcludeEnvVarNames:   ComputeAWFExcludeEnvVarNames(workflowData, e.claudeAuthExcludedEnvNames(workflowData)),
 			RetryStartupFailures: true,
 		})
 	}
@@ -488,6 +489,7 @@ func (e *ClaudeEngine) buildClaudeCommandEnv(workflowData *WorkflowData) map[str
 		env["GH_AW_CLAUDE_DISABLE_REPO_EDITS"] = "true"
 	}
 	applyMCPScriptsSecretEnv(env, workflowData)
+	applyClaudeOAuthEnv(env, workflowData)
 	return env
 }
 

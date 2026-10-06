@@ -30,6 +30,9 @@ const (
 	DefaultEngine EngineName = CopilotEngine
 )
 
+// ClaudeCodeOAuthToken is the GitHub Actions secret used by explicit Claude OAuth auth.
+const ClaudeCodeOAuthToken = "CLAUDE_CODE_OAUTH_TOKEN"
+
 // AgenticEngines lists all supported agentic engine names.
 // Deprecated: Use workflow.NewEngineCatalog(workflow.NewEngineRegistry()).IDs() for a
 // catalog-derived list. This slice is maintained for backward compatibility and must
@@ -160,6 +163,13 @@ func GetAllEngineSecretNames() []string {
 				secrets = append(secrets, alt)
 			}
 		}
+	}
+
+	// Explicit OAuth is not an alternative to the default Claude API key, but
+	// secret discovery must recognize it for workflow-aware bootstrap.
+	if !setutil.Contains(seen, ClaudeCodeOAuthToken) {
+		seen[ClaudeCodeOAuthToken] = struct{}{}
+		secrets = append(secrets, ClaudeCodeOAuthToken)
 	}
 
 	// Add system-level secrets from SystemSecrets

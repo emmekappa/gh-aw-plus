@@ -655,6 +655,9 @@ func (c *Compiler) runPostEngineValidations(
 	enableFirewallByDefaultForClaude(engineSetting, networkPermissions, sandboxConfig)
 	enableFirewallByDefaultForPi(engineSetting, networkPermissions, sandboxConfig)
 	enableFirewallByDefaultForGemini(engineSetting, networkPermissions, sandboxConfig)
+	if err := validateClaudeOAuthConfig(engineConfig, agenticEngine, sandboxConfig); err != nil {
+		return err
+	}
 	if err := validateMaxToolCallsConfig(engineConfig, agenticEngine); err != nil {
 		return err
 	}
