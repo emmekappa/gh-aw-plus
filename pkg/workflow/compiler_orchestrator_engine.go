@@ -603,6 +603,9 @@ func (c *Compiler) runPostEngineValidations(
 	enableFirewallByDefaultForClaude(engineSetting, networkPermissions, sandboxConfig)
 	enableFirewallByDefaultForPi(engineSetting, networkPermissions, sandboxConfig)
 	enableFirewallByDefaultForGemini(engineSetting, networkPermissions, sandboxConfig)
+	if err := validateClaudeOAuthConfig(engineConfig, agenticEngine, sandboxConfig); err != nil {
+		return err
+	}
 	return c.withEffectiveStrictMode(frontmatter, func() error {
 		orchestratorEngineLog.Printf("Validating strict firewall (strict=%v)", c.strictMode)
 		if err := c.validateStrictFirewall(engineSetting, networkPermissions, sandboxConfig); err != nil {

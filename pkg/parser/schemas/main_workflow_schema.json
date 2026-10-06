@@ -14420,8 +14420,8 @@
               "properties": {
                 "type": {
                   "type": "string",
-                  "enum": ["github-oidc"],
-                  "description": "Authentication type. Currently only 'github-oidc' is supported."
+                  "enum": ["github-oidc", "oauth"],
+                  "description": "Authentication type. Use github-oidc for WIF or oauth for Claude Code with CLAUDE_CODE_OAUTH_TOKEN (Claude/Anthropic only)."
                 },
                 "audience": {
                   "type": "string",

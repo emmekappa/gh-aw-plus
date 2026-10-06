@@ -115,8 +115,8 @@ type InlineEngineDriver struct {
 	MultipleRuntime bool // true when the driver map contained more than one runtime key
 }
 
-// EngineAuthConfig represents engine.auth frontmatter settings that map to
-// AWF_AUTH_* environment variables consumed by the AWF API proxy sidecar.
+// EngineAuthConfig represents engine.auth frontmatter settings. WIF maps to
+// AWF_AUTH_* proxy variables; explicit Claude OAuth is handled by ClaudeEngine.
 type EngineAuthConfig struct {
 	Type     string `json:"type"`
 	Audience string `json:"audience"`
@@ -719,7 +719,7 @@ func (c *Compiler) extractEngineConfigFromJSON(engineJSON string) (*EngineConfig
 // derived from config.Auth. Existing config.Env values take precedence so users
 // can explicitly override auth-derived values via engine.env.
 func applyEngineAuthEnv(config *EngineConfig) {
-	if config == nil || config.Auth == nil {
+	if config == nil || config.Auth == nil || config.Auth.Type == "oauth" {
 		return
 	}
 	if config.Env == nil {
