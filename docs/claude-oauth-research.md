@@ -51,3 +51,9 @@ The fork compiles the host-only slot as `Bearer ${{ secrets.CLAUDE_CODE_OAUTH_TO
 ## Upstream proposal assessment
 
 This is a plausible upstream proposal because the mode is explicit, existing behavior is preserved, and it uses current engine/auth and proxy abstractions without YAML rewriting or firewall changes. Before an upstream submission, discuss the intended support policy with maintainers and perform a real authenticated sandbox workflow run. The beta/placeholder adaptation needs review against future CLI and AWF releases. Prefer an upstream-native OAuth credential provider if introduced; the fork implementation is disposable.
+
+## Stable-release migration (2026-10-07)
+
+The fork now targets stable release `v0.89.21` at `c35393777e5604a63721d09512263b1383301d4f`. The investigation above records the original main-based implementation and remains historical evidence. The stable release uses the same engine-auth abstraction and compatible static proxy credential interface, with AWF `v0.28.23` and Claude Code `2.1.273`. OAuth was reapplied without bringing in unrelated later-main code. The synthetic environment/proxy/official CLI experiment passed again against these exact runtime pins.
+
+Stable releases are selected through GitHub's latest-release metadata, excluding drafts and prereleases. A release label is not a universal test guarantee: the unmodified release passed the full Go suite on Linux x64 while native macOS tests had platform-specific failures. The synchronization skill therefore tests the unmodified release first and compares the fork in a matching environment.

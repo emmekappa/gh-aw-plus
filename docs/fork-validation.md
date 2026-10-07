@@ -1,56 +1,60 @@
 # Fork validation record
 
-Date: 2026-10-06. Upstream base: `3fd44f8dc17a5fcdc45f653e7826853456b1839e`.
-Implementation commit: `aea8e12658` (`feat(claude): support OAuth authentication`).
-Test commit: `21674357da` (`test(claude): cover OAuth authentication`).
+Date: 2026-10-07. Selected stable release: [`v0.89.21`](https://github.com/github/gh-aw/releases/tag/v0.89.21), upstream commit `c35393777e5604a63721d09512263b1383301d4f`.
+Implementation commit: `c510d44584` (`feat(claude): support OAuth authentication`).
+Test commit: `acb6a2eaed` (`test(claude): cover OAuth authentication`).
 
-Checks ran against the identical implementation/test source tree before these commits; the final documentation commit adds records and instructions only. Raw diagnostics are retained locally and are not published because they contain machine paths. No real OAuth token was read or used. No tests or assertions were disabled to obtain a passing result.
+Checks ran against this implementation/test source tree, including documentation commit `60cf54335f`; the subsequent stable-release policy commit changes documentation only. The original main-based publication is preserved on `archive/main-based-oauth`, including its earlier validation record. Raw diagnostics remain local because they contain machine paths. No real OAuth token was read or used. No assertions were disabled or weakened.
 
 ## Environment
 
-macOS ARM64, case-insensitive filesystem, Go 1.27.1 (module minimum 1.26.8), Node 24.15.0. Modern Bash 5.3.20 and GNU sed were installed for Linux-oriented upstream shell tests. Go tests used a canonical temporary directory and `NO_COLOR` was unset where appropriate. AWF v0.28.31 and the official Claude Code CLI 2.1.288 were installed in isolated temporary directories for the synthetic runtime test, then removed.
+Native checks: macOS ARM64, case-insensitive filesystem, Go 1.27.1 (module minimum 1.26.8), Node 24.15.0, modern Bash and GNU sed. Go tests used canonical temporary paths and `NO_COLOR` was unset where appropriate.
 
-Docker initially reported an ARM64 server, but became unavailable while preparing a Linux validation image. Linux/container validation could not be completed. A temporary disk-space failure interrupted one focused run; after cleanup, the focused checks and complete Go suite were rerun successfully to completion. This does not mean every upstream assertion passed.
+Full Go comparison: Debian Bookworm Linux x64 containers under ARM-host emulation, case-sensitive paths, Go 1.27.0 SDK with native ARM compiler targeting Linux AMD64 (`CGO_ENABLED=0`), Node 24.21.0, Bash/GNU tools and shellcheck. Actual test binaries ran as Linux x64. This is a local emulated environment, not a claim that upstream CI or every native platform was tested. The clean release and fork shared identical tools and commands. Containers received repository source read-only and task-owned caches, without host credentials or a Docker socket. Docker-image integration checks skip in that container environment; native integration exercised the available Docker checks.
+
+The synthetic runtime check used the stable release's unchanged pins: AWF `v0.28.23` and official Claude Code CLI `2.1.273`, installed in isolated temporary directories. It exercised the actual environment builder/proxy and CLI against a loopback mock inference service.
 
 ## Results
 
 | Check | Result |
 | --- | --- |
-| `make deps`, native `make build` | Passed |
-| `make fmt`, `make fmt-check`, explicit Prettier/syntax check for the runtime test | Passed |
-| `make lint BASE_REF=upstream/main` | Passed; 266 existing JavaScript warnings, no errors |
-| Fork tests: `go test ./pkg/workflow ./pkg/cli -run 'TestClaudeOAuth\|TestWorkflowSecretsClaudeOAuth' -count=1` | Passed |
-| `TestClaudeOAuthRuntime` using actual generated env/exclusion settings, pinned AWF and official CLI | Passed: bearer header, OAuth beta, proxy inference, raw-token isolation and agent shell check |
-| `TestClaudeOAuthLiveIntegration` | Skipped; explicit opt-in and securely supplied real token required |
-| `make test-unit-all` | Completed: 35,674 passing test/subtest entries; 10 failing top-level CLI tests (15 entries including subtests); all workflow/compiler tests passed |
-| `make test-js` | Completed: 16,225 passed, 17 failed, 37 skipped across 500 files |
-| Focused baseline JS comparison | 14 of the 17 failures reproduced on unmodified upstream; the other three did not recur in the isolated subset |
-| JS affected subset with canonical temporary paths, modern Bash, GNU sed and unset `NO_COLOR` | 684 passed, six failed across 12 files; remaining failures also appeared on upstream |
-| `make test-security` | Passed regression tests and fuzz seed corpus |
-| `make test-wasm-golden` | Passed, including defaults for all five engines |
-| `make test-integration-workflow`, `make test-integration-compile` | Passed: 2,990 passing test/subtest entries, including Claude and Gemini WIF |
-| `make test-scripts` | Passed through workflow drift/purity checks, then stopped at a GNU-sed assumption in the threat-pin test. That test passed separately with GNU sed. Remaining scripts were run separately: usage-artifact and MCP-binary checks passed; temporary-directory ownership check had one failure on macOS |
-| `make test-wasm` | WASM build passed; binary golden harness skipped all four fixtures because compilation was unavailable in that environment. This is not four passing golden tests |
-| `make build-docs` / final `npm run build` | Passed: 272 pages, internal links validated. Initial runs logged missing external gallery sources despite exit 0; final run supplied authentic `githubnext/agentics` workflow sources at `5d11aa2a05ce2c943c085acb7b12b583f83ed375` through `AGENTICS_WORKFLOWS_DIR` and had no loader errors |
-| Docs remark unit tests | Passed after installing documentation dependencies |
-| Docs wizard model target | Failed: the upstream Makefile references a test file absent at this base |
-| Skill-format validation for canonical skill and Copilot entry; `make check-skill-file-paths` | Passed |
-| `BASE_REF=upstream/main make agent-report-progress` | Standard Go lint, build, schema freshness and impacted samples passed; custom linters reported eight pre-existing findings in an otherwise unchanged part of the touched compiler file |
-| `make check-workflow-drift` (run separately because the custom-linter gate stopped before it) | Passed: 323 workflows compiled; all generated locks unchanged |
-| Publication audit | Changed/new files checked for real credential patterns and personal machine paths; none found. GitHub noreply commit identity used; only `main` is pushed |
+| Pure release full Go suite (`make test-unit-all` command) on Linux x64 | Passed: 10,802 top-level tests, 34,172 test/subtest passing entries |
+| Fork full Go suite on matching Linux x64 | Passed: 10,810 top-level tests, 34,202 test/subtest passing entries; compiler, Claude API-key/WIF and other engines included |
+| Full JavaScript selection on Linux x64 | Completed across 425 files: 14,277 passed, six failed, 30 skipped; all six failures reproduced on pure release |
+| Fork-specific OAuth/secret tests on native macOS | Passed |
+| `TestClaudeOAuthRuntime` with stable AWF/CLI pins | Passed: correct bearer and OAuth beta headers, mock inference, excluded raw credential environment and agent shell isolation |
+| `TestClaudeOAuthLiveIntegration` | Skipped; requires explicit opt-in and securely supplied real token |
+| Native build, formatting and `make fmt-check` | Passed |
+| `make lint BASE_REF=v0.89.21` | Passed; 80 upstream JavaScript warnings, no errors |
+| `make test-integration-workflow` in Linux x64 | Passed, including command-group tests |
+| `make test-integration-compile` on native macOS and Linux x64 | Passed |
+| `make test-scripts` on Linux x64 | Passed: all Bash script tests |
+| `make test-wasm` on Linux x64 | Build passed; binary golden harness: two passed, zero failed, two skipped because compilation was unavailable for those fixtures |
+| `make test-security` and `make test-wasm-golden` | Passed; golden target includes defaults for all five engines |
+| `make check-workflow-drift` | Passed: 299 workflows compiled, all generated locks unchanged |
+| Documentation build | Passed: 262 pages, all internal links valid, no loader errors; external gallery sources supplied from authentic `githubnext/agentics` commit `5d11aa2a05ce2c943c085acb7b12b583f83ed375` |
+| Documentation remark unit tests | Passed: two tests |
+| Canonical/Copilot skill format validation and `make check-skill-file-paths` | Passed |
+| `BASE_REF=v0.89.21 make agent-report-progress` | Standard Go lint, build, schema freshness and sampled impacted tests passed; custom linters reported 15 existing findings, all reproduced in pure release code |
 
-The synthetic runtime test verifies real environment-building and proxy code plus the official CLI, using a loopback mock service. It does not run Docker iptables or authenticate against Anthropic. The optional real CLI test is separate from full GitHub Actions sandbox acceptance. Those remain unperformed.
+A stable release is not a guarantee of a universally green test suite.
 
-## Upstream and platform failures
+## Baseline and environment limits
 
-The 10 failing Go tests were reproduced on a separate checkout of the exact unmodified upstream base with matching native tools. They concern case-sensitive workflow discovery on a case-insensitive volume, shellcheck test assumptions, x64-only Copilot toolcache fixtures on ARM64 (which fall through to a nonexistent synthetic release), and `TestChiSquarePerfectBalance`. The latter expects p=1 but obtains 0.9961696194311833; it is unrelated to authentication. The checkout was removed after recording evidence.
+The full native pure-release Go suite has nine failing top-level CLI tests. They concern case-sensitive workflow discovery, shellcheck test assumptions, x64-only Copilot toolcache fixtures on ARM64, and `TestChiSquarePerfectBalance` (p=0.9961696194311833 rather than 1). All workflow tests pass. The full release suite passes in Linux x64, without modifying assertions.
 
-The JavaScript failures involve macOS canonical paths/symlinks, shell recovery commands, Git includeIf/safe-directory behavior, prompt error expectations, and existing safe-output tests. None of the upstream action JavaScript implementation or test files was modified. The baseline subset reproduces 14 failures; correcting the native test environment reduces the subset to six remaining failures. The three full-suite-only failures were in missing-file/output behavior and did not recur standalone; do not interpret the isolated run as proving the whole JavaScript suite green.
+One initial native integration run failed `TestCommandGroupAssignments` because several commands were absent from its shared root command. The identical isolated fork test passes, and the unchanged pure-release command package passes both individually and in five repeated full-package runs. This initial transient failure is retained as evidence; it was not reproduced on the pure release and is not presented as a proven baseline failure. No command-registration implementation or tests are changed by the fork.
 
-The temporary-directory shell check, missing wizard-model test, and GNU-sed assumption are in unchanged upstream scripts. The custom-linter findings are two function-length warnings and six unchecked-index findings already present in `compiler_orchestrator_engine.go`; the OAuth change adds only a validation call in a different function. No unrelated refactor or lint suppression was added to silence them.
+The initial JavaScript run was interrupted by a disk-space error and Docker daemon shutdown after 368 file results. Task-owned artifacts/caches were cleaned up, Docker was restored, and the remaining 57 files were run with the same source, dependency versions and tooling. Aggregate counts above combine completed files only; they do not claim one uninterrupted run. All other Linux suites had already completed.
+
+Six JavaScript failures observed in the Linux x64 full suite were all reproduced on the pure release in the same container/tooling, using a detached release checkout and the identical dependency tree. The baseline subset ran 577 tests: 570 passed and seven failed (one additional baseline-only failure). These concern existing failure-handler expectations, a large Git-history range, fatal signals/watchdog timing under emulation, and an unreadable-file assertion when running as root. No upstream JavaScript source, tests, or dependency pins are changed.
+
+The custom-linter gate's 15 messages concern existing function lengths, discarded type assertions, and slice indexing in existing engine/compiler code. They were matched against a separate pure-release custom-linter run. No unrelated refactor or suppression was introduced to silence them; workflow drift was checked separately because this gate stops before it.
+
+The synthetic runtime check does not exercise Docker iptables or authenticate with Anthropic. Live subscription inference and a full authenticated GitHub Actions sandbox acceptance run remain unperformed. No real credentials were needed for this migration.
 
 ## Reproduce and extend validation
 
-Use the README commands and the OAuth guide's synthetic/live integration instructions. For a complete portability check, run the unmodified upstream suite and this fork on a Linux x64 runner with Bash/GNU tools and case-sensitive paths, and retain comparable results. Investigate remaining baseline defects separately rather than expanding this fork's delta.
+Use the README and OAuth guide's commands. Select the latest published stable release through GitHub release metadata, resolve its exact tag commit, and compare pure upstream and fork under matching tools. Never interpret prereleases, `main`, or `target_commitish: main` as the stable base. Document platform failures and skips separately rather than hiding them.
 
-For authenticated acceptance, manually dispatch a workflow compiled by this fork with an independently supplied `CLAUDE_CODE_OAUTH_TOKEN` secret. Verify successful inference and absence of the real token in agent shell commands and logs while preserving AWF restrictions. This publication deliberately leaves inherited GitHub Actions disabled, so no copied upstream schedules execute on the fork. It adds no synchronization schedule.
+For authenticated acceptance, manually dispatch a workflow compiled by this fork with an independently supplied `CLAUDE_CODE_OAUTH_TOKEN` secret. Verify successful inference and absence of the real token in shell commands and logs while preserving AWF restrictions. Inherited GitHub Actions remain disabled on this public fork, preventing copied upstream schedules from executing. No synchronization schedule was added.

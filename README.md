@@ -4,7 +4,7 @@ A minimal fork of [GitHub Agentic Workflows (`github/gh-aw`)](https://github.com
 
 Write an agent workflow in Markdown, compile it into GitHub Actions, and run the official Claude Code CLI using a `CLAUDE_CODE_OAUTH_TOKEN` GitHub secret. No `ANTHROPIC_API_KEY` secret is required in OAuth mode. Upstream API-key authentication, Anthropic WIF, default Claude behavior, and other engines remain supported.
 
-This is an independent fork, not an official GitHub or Anthropic product. The target is a small, disposable extension that can disappear when upstream provides equivalent support.
+This is an independent fork, not an official GitHub or Anthropic product. The target is a small, disposable extension that can disappear when upstream provides equivalent support. Updates follow published stable upstream releases; the selected release and commit are recorded in [FORK.md](FORK.md).
 
 ## Quick start
 
@@ -89,7 +89,7 @@ make deps
 make build
 make fmt
 make fmt-check
-make lint BASE_REF=upstream/main
+make lint BASE_REF=v0.89.21 # Use the upstream tag recorded in FORK.md
 go test ./pkg/workflow ./pkg/cli -run 'TestClaudeOAuth|TestWorkflowSecretsClaudeOAuth' -count=1
 make test-unit-all
 make test-js
@@ -110,7 +110,8 @@ In Codex, Claude Code, or GitHub Copilot coding agent, open this repository and 
 
 ```text
 Read FORK.md and skills/sync-upstream/SKILL.md, then use the sync-upstream
-skill to update this fork from github/gh-aw. Preserve the OAuth functional
+skill to update this fork to the latest published stable github/gh-aw release.
+Exclude prereleases and do not follow main. Preserve the OAuth functional
 invariant and upstream security boundaries. Run the required checks,
 commit the synchronization, and report the remaining fork delta.
 ```
